@@ -129,7 +129,7 @@ class TestMultiprocessing:
             max_connections=max_connections,
         )
 
-        conn = pool.get_connection("ping")
+        conn = pool.get_connection()
         main_conn_pid = conn.pid
         with exit_callback(pool.release, conn):
             conn.send_command("ping")
@@ -137,7 +137,7 @@ class TestMultiprocessing:
 
         def target(pool):
             with exit_callback(pool.disconnect):
-                conn = pool.get_connection("ping")
+                conn = pool.get_connection()
                 assert conn.pid != main_conn_pid
                 with exit_callback(pool.release, conn):
                     assert conn.send_command("ping") is None
@@ -150,7 +150,7 @@ class TestMultiprocessing:
 
         # Check that connection is still alive after fork process has exited
         # and disconnected the connections in its pool
-        conn = pool.get_connection("ping")
+        conn = pool.get_connection()
         with exit_callback(pool.release, conn):
             assert conn.send_command("ping") is None
             assert conn.read_response() == b"PONG"
@@ -166,12 +166,12 @@ class TestMultiprocessing:
             max_connections=max_connections,
         )
 
-        conn = pool.get_connection("ping")
+        conn = pool.get_connection()
         assert conn.send_command("ping") is None
         assert conn.read_response() == b"PONG"
 
         def target(pool, disconnect_event):
-            conn = pool.get_connection("ping")
+            conn = pool.get_connection()
             with exit_callback(pool.release, conn):
                 assert conn.send_command("ping") is None
                 assert conn.read_response() == b"PONG"
